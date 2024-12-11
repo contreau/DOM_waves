@@ -1,0 +1,19 @@
+{
+  "name": "dom_waves",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "src/index.html",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "Conor Kelley",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "vite": "^6.0.3"
+  }
+}
