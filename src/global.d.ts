@@ -1,5 +1,9 @@
 export {};
 
 declare global {
-  type halvedColumns = Array<Record<string, HTMLDivElement[]>>;
+  type halvedColumns = Array<column>;
+  interface column {
+    top: HTMLDivElement[];
+    bottom: HTMLDivElement[];
+  }
 }
