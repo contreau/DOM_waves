@@ -45,12 +45,12 @@ function populate_matrix(matrix, particle_height) {
   }
 }
 
-/** @returns {halvedColumns} */
+/** @returns {ColumnList} */
 function halve_columns() {
   /** @type {HTMLDivElement[]} */
   const columns = Array.from(document.querySelectorAll(".column"));
 
-  /** @type {halvedColumns} */
+  /** @type {ColumnList} */
   const halved = [];
 
   for (let col of columns) {
@@ -115,7 +115,7 @@ async function make_wave(column, height_percent, stagger_ms) {
   // console.log("contracted.");
 }
 
-/** @param {halvedColumns} columns */
+/** @param {ColumnList} columns */
 function start_visuals(columns) {
   const height_percentages = Array.from(
     { length: columns.length },

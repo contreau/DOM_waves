@@ -1,7 +1,7 @@
 export {};
 
 declare global {
-  type halvedColumns = Array<column>;
+  type ColumnList = Array<column>;
   interface column {
     top: HTMLDivElement[];
     bottom: HTMLDivElement[];

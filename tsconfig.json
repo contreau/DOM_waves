@@ -20,5 +20,5 @@
 
     "types": ["node"]
   },
-  "include": ["src/*.js", "src/*.d.ts"]
+  "include": ["src/vanilla/*.js", "./*.d.ts", "src/svelte/*.svelte"]
 }
