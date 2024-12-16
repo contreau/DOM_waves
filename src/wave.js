@@ -2,18 +2,20 @@
 
 // ratio of particle column to matrix width is 1/100, and should stay that way
 // particle gap and size are controlled via css custom properties in the :root
-// the number of particles that the matrix is high is the function input
+// the number of particles that the matrix is high is the parameter for populate_matrix
 
 /** @type {HTMLDivElement} */
 // @ts-ignore
 const column_matrix = document.querySelector(".column-matrix");
 const root_styles = getComputedStyle(document.documentElement);
 
-/** @param {number} particle_height */
-function populate_matrix(particle_height) {
+/**
+ *  @param {HTMLDivElement} matrix
+ *  @param {number} particle_height */
+function populate_matrix(matrix, particle_height) {
   // compute number of columns
   // grabs --particle-gap css variable
-  const computed_column_gap = getComputedStyle(column_matrix).gap;
+  const computed_column_gap = getComputedStyle(matrix).gap;
   const gap_amount = Number(
     computed_column_gap.slice(0, computed_column_gap.indexOf("p"))
   );
@@ -23,7 +25,7 @@ function populate_matrix(particle_height) {
   let particle_size = root_styles.getPropertyValue("--particle-side-size");
   particle_size = Number(particle_size.slice(0, particle_size.indexOf("p")));
   const column_count = Math.floor(
-    column_matrix.clientWidth / (particle_size + gap_amount)
+    matrix.clientWidth / (particle_size + gap_amount)
   );
 
   // generate column
@@ -39,55 +41,8 @@ function populate_matrix(particle_height) {
     }
 
     // append column to matrix
-    column_matrix.appendChild(generated_column);
+    matrix.appendChild(generated_column);
   }
-}
-
-/**
- * @param {number} visibility_factor
- * @returns {HTMLDivElement[]} */
-function choose_visible(visibility_factor) {
-  // ** generates random visible particles
-  /** @type {HTMLDivElement[]} */
-  const all_particles = Array.from(document.querySelectorAll(".particle"));
-  const set = new Set();
-  const particle_count = Math.floor(all_particles.length);
-  while (set.size !== Math.floor(particle_count / visibility_factor)) {
-    const rand = Math.floor(Math.random() * particle_count);
-    if (!set.has(rand)) {
-      set.add(rand);
-    }
-  }
-  /** @type {HTMLDivElement[]} */
-  const visible_particles = [];
-  for (let index of set) {
-    visible_particles.push(all_particles[index]);
-  }
-  return visible_particles;
-}
-
-/**
- * @param {number} matrix_size
- * @param {number} visibility_factor
- */
-function enable_display(matrix_size, visibility_factor) {
-  if (visibility_factor < 2) {
-    throw new Error(
-      "Matrix not displaying: visibility factor must be at least 2."
-    );
-  }
-  // create matrix
-  populate_matrix(matrix_size);
-  // initiate visual interval
-  setInterval(() => {
-    /** @type {HTMLDivElement[]} */
-    const particles = choose_visible(visibility_factor);
-    particles.map((p) => p.classList.add("visible"));
-
-    setTimeout(() => {
-      particles.map((p) => p.classList.remove("visible"));
-    }, 400);
-  }, 400);
 }
 
 /** @returns {halvedColumns} */
@@ -126,7 +81,7 @@ async function make_wave(column, height_percent, stagger_ms) {
   // parameter height_percent defines the amplitude relative to the container height (must be between 1 - 100%)
   if (!(height_percent >= 1 && height_percent <= 100)) {
     throw new Error(
-      "height_percent paramater must be between 1 and 100, inclusive."
+      `height_percent paramater must be between 1 and 100, inclusive.\ncurrent parameter: ${height_percent}`
     );
   }
   const amplitude = Math.floor((height_percent / 100) * column.top.length);
@@ -160,34 +115,34 @@ async function make_wave(column, height_percent, stagger_ms) {
   // console.log("contracted.");
 }
 
-function start_visuals() {
-  const halved_columns = halve_columns();
-  const stagger_times = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-  // const height_percentages = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-  const height_percentages = Array.from({ length: 100 }, (_, i) => i + 1);
-
-  /** @param {number[]} arr */
-  function randomize(arr) {
-    const result = Math.floor(Math.random() * arr.length);
-    if (result >= 1 && result <= 100) {
-      return result;
-    } else {
-      return 10;
+/** @param {halvedColumns} columns */
+function start_visuals(columns) {
+  const height_percentages = Array.from(
+    { length: columns.length },
+    (_, i) => i + 1
+  );
+  const random_percentages = [];
+  const set = new Set();
+  while (random_percentages.length < height_percentages.length) {
+    const i = Math.floor(Math.random() * height_percentages.length);
+    if (!set.has(height_percentages[i])) {
+      random_percentages.push(height_percentages[i]);
+      set.add(height_percentages[i]);
     }
   }
 
-  for (let col of halved_columns) {
-    make_wave(col, randomize(height_percentages), 40);
+  for (let i = 0; i < columns.length; i++) {
+    make_wave(columns[i], random_percentages[i], 70);
   }
 }
 
-// particle movement will be vertical and will move mirrored across the x-axis, so to speak
+let matrix_size = 20;
+let size_to_interval_ratio = 80 / 3;
+let interval_delay = matrix_size * size_to_interval_ratio;
 
-populate_matrix(40);
+populate_matrix(column_matrix, matrix_size);
+const halved_columns = halve_columns();
 setInterval(() => {
-  start_visuals();
-}, 100);
-// const halved_columns = halve_columns();
-// const col_1 = halved_columns[0];
-// make_wave(col_1, 100, 100);
-// enable_display(40, 3);
+  start_visuals(halved_columns);
+}, interval_delay);
+// start_visuals(halved_columns);
